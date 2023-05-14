@@ -5,6 +5,8 @@ import unicodedata
 import docx
 import tkinter as tk
 from tkinter import filedialog
+import PyPDF2
+
 
 MODEL = fasttext.load_model('lid.176.ftz')
 
@@ -37,7 +39,7 @@ def split_text(text, max_tokens=None):
         max_tokens =  3050
         sentences = re.split(r'(?<=[。！？])\s*', text)
     elif language == 'en':
-        max_tokens =  4000
+        max_tokens =  4100
         sentences = re.split(r'(?<=[.])\s+', text)
     else:
         max_tokens = 3050  # 預設情況下，將使用中文的 token 限制
@@ -71,6 +73,14 @@ def open_file():
     elif file_path.endswith('.docx'):
         doc = docx.Document(file_path)
         text = '\n'.join([paragraph.text for paragraph in doc.paragraphs])
+    elif file_path.endswith('.pdf'):  # 處理PDF檔案
+        pdf_file_obj = open(file_path, 'rb')
+        pdf_reader = PyPDF2.PdfReader(pdf_file_obj)
+        text = ''
+        for page_num in range(len(pdf_reader.pages)):
+            page_obj = pdf_reader.pages[page_num]
+            text += page_obj.extract_text()
+        pdf_file_obj.close()
     else:
         text = ""
         print("Invalid file type")
@@ -85,11 +95,21 @@ def open_file():
         part_selection_menu['menu'].add_command(label=f"Part {idx + 1}", command=lambda idx=idx: jump_to_part(idx))
 
     print(f"Split the text into {len(split_result)} parts")  # 添加這一行
+
+
+
+
 def jump_to_part(part_index):
     line_number = text_box.search(f"Part {part_index + 1} :", "1.0", tk.END)
     text_box.tag_remove("sel", "1.0", tk.END)
     text_box.tag_add("sel", line_number, f"{line_number}+1line")
     text_box.see(line_number)
+
+
+
+def refresh_ui():
+    text_box.delete("1.0", tk.END)  # 清空文字區塊
+    part_selection_menu['menu'].delete(0, 'end')  # 清空選單
 
 root = tk.Tk()
 root.title("Text Splitter")
@@ -97,12 +117,14 @@ root.title("Text Splitter")
 open_button = tk.Button(root, text="Open File", command=open_file)
 open_button.pack()
 
+# 新增的刷新按鈕
+refresh_button = tk.Button(root, text="Refresh", command=refresh_ui)
+refresh_button.pack()  # 將刷新按鈕加入視窗
+
 text_box = tk.Text(root)
 text_box.pack()
 
 part_selection_menu = tk.OptionMenu(root, tk.StringVar(), "")
 part_selection_menu.pack()
-
-
 
 root.mainloop()
