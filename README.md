@@ -1,7 +1,9 @@
+
+
 文章分割成接近4096個TOKENS
 只能分割中文或英文文本
 只能接受WORD檔或是TXT檔
-==================================
+
 假如無法安裝fasttext 
 原因是你的系統中沒有安裝 Microsoft Visual C++ 14.0 或更新版本。
 Fasttext 需要 Microsoft Visual C++ 來編譯其 C++ 源碼。
