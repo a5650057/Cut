@@ -112,7 +112,7 @@ def refresh_ui():
     part_selection_menu['menu'].delete(0, 'end')  # 清空選單
 
 root = tk.Tk()
-root.title("Text Splitter")
+root.title("分割Tokens")
 
 open_button = tk.Button(root, text="Open File", command=open_file)
 open_button.pack()
